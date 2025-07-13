@@ -1,4 +1,4 @@
-name: SSH via Ngrok
+name: Persistent SSH via Ngrok
 
 on: [workflow_dispatch]
 
@@ -30,11 +30,17 @@ jobs:
         sudo sed -i 's/#PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh/sshd_config
         sudo systemctl restart ssh
 
-    - name: Start Ngrok TCP Tunnel to port 22
+    - name: Start Ngrok Tunnel (TCP 22)
       run: |
         nohup ngrok tcp 22 > ngrok.log &
         sleep 5
 
-    - name: Display Ngrok Public URL
+    - name: Show Ngrok Public URL
       run: |
+        echo "Ngrok tunnel URL:"
         curl -s http://localhost:4040/api/tunnels | jq -r '.tunnels[0].public_url'
+
+    - name: Keep Runner Alive
+      run: |
+        echo "🟢 SSH is live. Connect now. This job will stay alive until you cancel it manually."
+        tail -f /dev/null
